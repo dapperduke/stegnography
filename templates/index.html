@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stego-Voice Lab</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #8e44ad;
+            --success: #27ae60;
+            --bg: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        
+        .card {
+            border: 1px solid #e1e8ed;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        h3 { margin-top: 0; color: var(--primary); }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] { margin: 15px 0; width: 100%; }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+
+        .btn-encode { background-color: var(--primary); color: white; }
+        .btn-decode { background-color: var(--secondary); color: white; }
+        .btn-download { background-color: var(--success); color: white; margin-top: 15px; }
+        .btn:hover { opacity: 0.85; }
+
+        .result-img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #eee;
+        }
+
+        audio { width: 100%; margin-top: 15px; }
+        .status-msg { font-size: 0.9rem; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1> Steganography </h1>
+
+    <div class="card">
+        <h3>1. Encode Text into Image</h3>
+        <form action="/encode" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <textarea name="message" placeholder="Type your secret message here..." required></textarea>
+            <button type="submit" class="btn btn-encode">Convert to Grayscale & Hide</button>
+        </form>
+
+        {% if encoded_img %}
+            <div style="text-align: center;">
+                <p class="status-msg">Message hidden! Preview below:</p>
+                <img src="{{ encoded_img }}?t={{ time }}" class="result-img">
+                <a href="{{ encoded_img }}" download="stego_image.png" class="btn btn-download">Download Stego-Image</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>2. Extract Text from Image to MP3</h3>
+        <form action="/decode" method="post" enctype="multipart/form-data">
+            <p class="status-msg">Upload a previously encoded grayscale PNG image.</p>
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit" class="btn btn-decode">Extract & Generate Audio</button>
+        </form>
+
+        {% if mp3_path %}
+            <div style="text-align: center;">
+                <p><strong>Extracted:</strong> {{ secret_text }}</p>
+                <audio controls autoplay>
+                    <source src="{{ mp3_path }}?t={{ time }}" type="audio/mpeg">
+                </audio>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
